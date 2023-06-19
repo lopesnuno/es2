@@ -16,9 +16,6 @@ public partial class ES2DbContext : DbContext
     {
     }
 
-    public virtual DbSet<Author> Authors { get; set; }
-
-    public virtual DbSet<Book> Books { get; set; }
     public DbSet<Activity> Activities { get; set; }
     public DbSet<Event> Events { get; set; }
     public DbSet<EventParticipant> EventParticipants { get; set; }
@@ -39,6 +36,7 @@ public partial class ES2DbContext : DbContext
             .Property(e => e.Category)
             .HasConversion<string>();
 
+        modelBuilder.Entity<EventParticipant>().HasKey(ep => new { ep.EventId, ep.ParticipantId });
         OnModelCreatingPartial(modelBuilder);
     }
 
