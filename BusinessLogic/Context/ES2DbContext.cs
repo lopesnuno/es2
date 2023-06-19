@@ -21,7 +21,7 @@ public partial class ES2DbContext : DbContext
     public DbSet<EventParticipant> EventParticipants { get; set; }
     public DbSet<Organizer> Organizers { get; set; }
     public DbSet<Participant> Participants { get; set; }
-    public DbSet<TicketType> TicketTypes { get; set; }
+    public DbSet<EventTicket> TicketTypes { get; set; }
     public DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
