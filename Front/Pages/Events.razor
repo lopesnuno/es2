@@ -1,6 +1,7 @@
 ﻿@page "/events"
 @using Front.Services
 @inject IEventService EventService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Eventos</PageTitle>
 
@@ -25,6 +26,11 @@
             <td>@e.Location</td>
             <td>@e.Description</td>
             <td>@e.Category</td>
+            <td>
+                <button class="btn btn-primary" @onclick="() => ShowEvent(e.Id.ToString())">
+                    <i class="oi oi-pencil"></i>
+                </button>
+            </td>
         </tr>
     }
     </tbody>
@@ -32,6 +38,11 @@
 
 @code
 {
+    void ShowEvent(string id)
+    {
+        NavigationManager.NavigateTo($"event/{id}");
+    }
+    
     protected override async Task OnInitializedAsync()
     {
         await EventService.GetEvents();

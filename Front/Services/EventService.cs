@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Front.Models.bModels;
 
@@ -11,20 +12,26 @@ public class EventService : IEventService
     public EventService(HttpClient httpClient)
     {
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri("https://localhost:7199/");
     }
 
     public async Task GetEvents()
     {
-        _httpClient.BaseAddress = new Uri("https://localhost:7199/");
-        
         var result = await _httpClient.GetFromJsonAsync<List<Event>>("api/Event");
 
         if (result is not null)
             Events = result;
     }
 
-    public Task<Event?> GetEventById(string id)
+    public async Task<Event?> GetEventById(string id)
     {
-        throw new NotImplementedException();
+        var result = await _httpClient.GetAsync($"api/Event/{id}");
+
+        if (result.StatusCode == HttpStatusCode.OK)
+        {
+            return await result.Content.ReadFromJsonAsync<Event>();
+        }
+
+        return null;
     }
 }
