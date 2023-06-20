@@ -3,16 +3,19 @@
 @using Frontend.Data
 
 @page "/events"
-@inject HttpClient httpClient
+@inject HttpClient HttpClient
 
 <PageTitle>Eventos</PageTitle>
 
 <h1>Eventos Disponíveis</h1>
 
+@if (!showEventList)
+{
+    <h4>No events yet!</h4>
+}
+
 @if (showEventList)
 {
-    <h4>Evento List</h4>
-
     <table class="table">
         <thead>
         <tr>
@@ -47,7 +50,7 @@
 
     private async Task ListAllEvents()
     {
-        var response = await httpClient.GetAsync("api/Event");
+        var response = await HttpClient.GetAsync("api/Event");
 
         if (response.IsSuccessStatusCode)
         {
@@ -72,11 +75,6 @@
             events = new List<EventModel>();
             showEventList = false;
         }
-    }
-    
-    protected override async Task OnInitializedAsync()
-    {
-        await ListAllEvents();
     }
 
 }

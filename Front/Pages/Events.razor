@@ -1,0 +1,39 @@
+﻿@page "/events"
+@using Front.Services
+@inject IEventService EventService
+
+<PageTitle>Eventos</PageTitle>
+
+<h1>Eventos Disponíveis</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Nome</th>
+        <th>Data</th>
+        <th>Local</th>
+        <td>Descricao</td>
+        <td>Categoria</td>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var e in EventService.Events)
+    {
+        <tr>
+            <td>@e.Name</td>
+            <td>@e.Date</td>
+            <td>@e.Location</td>
+            <td>@e.Description</td>
+            <td>@e.Category</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await EventService.GetEvents();
+    }
+}
