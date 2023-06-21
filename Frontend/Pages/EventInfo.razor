@@ -1,0 +1,74 @@
+﻿@page "/eventinfo/{id:int}"
+@inject HttpClient httpClient
+@using System.Net.Http.Json
+@using System.Text.Json
+@using Frontend.Data
+
+<h3>Event Info</h3>
+
+@if (showEventList)
+{
+    <h4>Evento Info</h4>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Location</th>
+            <td>Description</td>
+            <td>Category</td>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (EventModel e in events)
+        {
+            <tr>
+                <td>@e.Name</td>
+                <td>@e.Date</td>
+                <td>@e.Location</td>
+                <td>@e.Description</td>
+                <td>@e.Category</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<EventModel> events;
+    private EventModel e = new EventModel();
+    private string createMessage;
+    private bool showEventList = false;
+    
+    private async Task ListAllEvents()
+    {
+        var response = await HttpClient.GetAsync($"api/Event/{Id}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var document = JsonDocument.Parse(jsonResponse);
+
+            events = document.RootElement.GetProperty("$values").EnumerateArray()
+                .Select(element => new EventModel
+                {
+                    Name = element.GetProperty("name").GetString(),
+                    Date = element.GetProperty("date").GetDateTime(),
+                    Location = element.GetProperty("location").GetString(),
+                    Description = element.GetProperty("description").GetString(),
+                    Category = element.GetProperty("dategory").GetString()
+                })
+                .ToList();
+
+            showEventList = true;
+        }
+        else
+        {
+            events = new List<EventModel>();
+            showEventList = false;
+        }
+    }
+
+}
+

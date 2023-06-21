@@ -1,0 +1,41 @@
+@page "/event/{id}"
+@using Front.Services
+@using Front.Models.bModels
+@inject IEventService EventService
+@inject NavigationManager NavigationManager
+
+<h3>Event - @_event.Name</h3>
+@if (_event != null)
+{
+    <p>Date: @_event.Date</p>
+    <p>Location: @_event.Location</p>
+    <p>Description: @_event.Description</p>
+    <p>Category: @_event.Category</p>
+    @foreach (var ticket in _event.Tickets)
+        {
+            <p>Ticket Name: @ticket.Name</p>
+            <p>Price: @ticket.Price</p>
+        }
+}
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    Event? _event = null!;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await EventService.GetEventById(Id);
+            if (result is not null)
+            {
+                _event = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/events");
+            }
+        }
+    }
+}
