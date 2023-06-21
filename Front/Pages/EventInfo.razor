@@ -5,7 +5,7 @@
 @inject NavigationManager NavigationManager
 
 <div class="d-flex flex-row align-items-center">
-    <h3 class="mr-4">@_event?.Name</h3>
+    <h3 class="mr-4">@_eventName</h3>
     @if (!_isEditEvent)
     {
         <i class="oi oi-pencil" @onclick="EditEvent"></i>
@@ -50,6 +50,7 @@
     public string? Id { get; set; }
 
     Event? _event = null!;
+    string _eventName = null!;
 
     private bool _isEditEvent;
     
@@ -63,6 +64,7 @@
             if (result is not null)
             {
                 _event = result;
+                _eventName = result.Name;
             }
             else
             {
