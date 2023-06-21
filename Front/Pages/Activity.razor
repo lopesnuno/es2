@@ -1,0 +1,92 @@
+@page "/event/{eventId}/activity"
+@page "/event/{eventId}/activity/{id}"
+@using Front.Services
+@using Front.Models.bModels
+@inject IActivityService ActivityService
+@inject NavigationManager NavigationManager
+
+@if (_isEditActivity && _activity is not null)
+{
+    <h3>Edit ticket - @_activity.Name</h3>
+}
+else
+{
+    <h3>Create new activity</h3>
+}
+
+<EditForm Model="_activity" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="_activity.Name" class="form-control"/>
+    </div>
+    <div>
+        <label for="qty">Date</label>
+        <InputDate id="qty" @bind-Value="_activity.Date" class="form-control"/>
+    </div>
+    <div>
+        <label for="price">Description</label>
+        <InputTextArea id="price" @bind-Value="_activity.Description" class="form-control"/>
+    </div>
+    <br/>
+    <div class="d-flex flex-row gap-2">
+        <button type="submit" class="btn btn-primary">@_buttonTxt</button>
+        <button class="btn btn-warning" @onclick="HandleCancel">Cancel</button>
+    </div>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public string EventId { get; set; }
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    private bool _isEditActivity;
+    Front.Models.bModels.Activity? _activity = new Models.bModels.Activity { Date = new DateTime() };
+
+    private string _buttonTxt;
+
+    protected override void OnInitialized()
+    {
+        _isEditActivity = Id != null;
+        _buttonTxt = Id == null ? "Create Activity" : "Update Activity";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ActivityService.GetActivityById(Id);
+            if (result is not null)
+            {
+                _activity = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo($"/event/{EventId}");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (_activity is not null)
+        {
+            if (Id != null)
+            {
+                await ActivityService.UpdateActivity(_activity);
+            }
+            else
+            {
+                await ActivityService.CreateActivity(_activity, EventId);
+            }
+        }
+    }
+
+    void HandleCancel()
+    {
+        NavigationManager.NavigateTo($"/event/{EventId}");
+    }
+
+}
