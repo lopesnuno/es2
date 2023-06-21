@@ -4,7 +4,7 @@
 
 ## Authors
 - Nuno Lopes Nº24897 - @lopesnuno
-- Miguel Oliveira Nº - @MiguelOliveira63
+- Miguel Oliveira Nº24576 - @MiguelOliveira63
 
 # Software Engineering II - Dev Kit #
 
