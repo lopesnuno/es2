@@ -34,6 +34,9 @@
         </tr>
     }
     </tbody>
+    <button class="btn btn-primary" @onclick="HandleCreateEvent">
+        <i class="oi oi-pencil"></i>
+    </button>
 </table>
 
 @code
@@ -41,6 +44,11 @@
     void ShowEvent(string id)
     {
         NavigationManager.NavigateTo($"event/{id}");
+    }
+
+    void HandleCreateEvent()
+    {
+        NavigationManager.NavigateTo("event");
     }
     
     protected override async Task OnInitializedAsync()

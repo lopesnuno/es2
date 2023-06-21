@@ -1,29 +1,49 @@
+@page "/event"
 @page "/event/{id}"
 @using Front.Services
 @using Front.Models.bModels
+@using System.Runtime.InteropServices.JavaScript
 @inject IEventService EventService
 @inject NavigationManager NavigationManager
 
-<div class="d-flex flex-row align-items-center">
-    <h3 class="mr-4">@_eventName</h3>
-    @if (!_isEditEvent)
-    {
-        <i class="oi oi-pencil" @onclick="EditEvent"></i>
-    }
-</div>
-@if (_event != null)
+@if (Id != null)
+{
+    <div class="d-flex flex-row align-items-center gap-2">
+        <h3 class="mr-4">@_eventName</h3>
+        @if (!_isEditEvent)
+        {
+            <button class="btn btn-primary">
+                <i class="oi oi-pencil" @onclick="EditEvent"></i>
+            </button>
+            
+            <button class="btn btn-primary">
+                <i class="oi oi-delete" @onclick="HandleDeleteEvent"></i>
+            </button>
+        }
+    </div>
+}
+else
+{
+    <h3 class="mr-4">Create your own Event</h3>
+}
+
+@if (!_isEditEvent && !_isCreateForm)
 {
     <p>Date: @_event.Date</p>
     <p>Location: @_event.Location</p>
     <p>Description: @_event.Description</p>
     <p>Category: @_event.Category</p>
-    @foreach (var ticket in _event?.Tickets)
+    @if (_event?.Tickets?.Count > 0)
+    {
+        @foreach (var ticket in _event.Tickets)
         {
             <p>Ticket Name: @ticket.Name</p>
             <p>Price: @ticket.Price</p>
         }
+    }
 }
-@if (_isEditEvent && _event != null)
+
+@if ((_isEditEvent && _event != null) || _isCreateForm)
 {
     <EditForm Model="_event" OnSubmit="HandleSubmit">
         <div>
@@ -50,9 +70,10 @@
                 <option value="@EventCategory.TechnologyEvent">@EventCategory.TechnologyEvent</option>
             </InputSelect>
         </div>
-        <br />
-        <div>
-            <button type="submit" class="btn btn-primary">Update Event</button>
+        <br/>
+        <div class="d-flex flex-row gap-2">
+            <button type="submit" class="btn btn-primary">@_buttonTxt</button>
+            <button class="btn btn-warning" @onclick="HandleCancel">Cancel</button>
         </div>
     </EditForm>
 }
@@ -61,15 +82,23 @@
     [Parameter]
     public string? Id { get; set; }
 
-    Event? _event = null!;
+    Event? _event = new Event { Date = DateOnly.FromDateTime(DateTime.Now) };
     string _eventName = null!;
 
     private bool _isEditEvent;
-    
+    private bool _isCreateForm;
+
+    string _buttonTxt = null!;
+
+    protected override void OnInitialized()
+    {
+        _buttonTxt = Id == null ? "Create Event" : "Update Event";
+        _isEditEvent = false;
+        _isCreateForm = Id == null;
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        _isEditEvent = false;
-        
         if (Id is not null)
         {
             var result = await EventService.GetEventById(Id);
@@ -94,8 +123,32 @@
     {
         if (_event != null)
         {
-            await EventService.UpdateEvent(_event);
-            _isEditEvent = false;
+            if (Id != null)
+            {
+                await EventService.UpdateEvent(_event);
+                _isEditEvent = false;
+                _eventName = _event.Name;
+            }
+            else
+            {
+                await EventService.CreateEvent(_event);
+            }
         }
+    }
+
+    void HandleCancel()
+    {
+        if (Id == null)
+        {
+            NavigationManager.NavigateTo("/events");
+        }
+
+        _isEditEvent = false;
+    }
+
+    async Task HandleDeleteEvent()
+    {
+        if (Id != null)
+            await EventService.DeleteEvent(Id);
     }
 }

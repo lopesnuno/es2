@@ -8,4 +8,6 @@ public interface IEventService
     Task GetEvents();
     Task<Event?> GetEventById(string id);
     Task UpdateEvent(Event newEventInfo);
+    Task CreateEvent(Event newEvent);
+    Task DeleteEvent(string id);
 }

@@ -42,4 +42,20 @@ public class EventService : IEventService
     {
         await _httpClient.PutAsJsonAsync($"api/Event/{newEventInfo.Id.ToString()}", newEventInfo);
     }
+
+    public async Task CreateEvent(Event newEvent)
+    {
+        var res = await _httpClient.PostAsJsonAsync("api/Event", newEvent);
+
+        if (res.StatusCode == HttpStatusCode.OK)
+        {
+            _navigationManager.NavigateTo("/events");
+        }
+    }
+
+    public async Task DeleteEvent(string id)
+    {
+        await _httpClient.DeleteAsync($"api/Event/{id}");
+        _navigationManager.NavigateTo("/events");
+    }
 }
