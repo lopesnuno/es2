@@ -1,0 +1,92 @@
+@page "/event/{eventId}/ticket"
+@page "/event/{eventId}/ticket/{id}"
+@using Front.Services
+@using Front.Models.bModels
+@inject ITicketService TicketService
+@inject NavigationManager NavigationManager
+
+@if (_isEditTicket && _ticket is not null)
+{
+    <h3>Edit ticket - @_ticket.Name</h3>
+}
+else
+{
+    <h3>Create new ticket</h3>
+}
+
+<EditForm Model="_ticket" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="_ticket.Name" class="form-control"/>
+    </div>
+    <div>
+        <label for="qty">Quantity Avaliable</label>
+        <InputNumber id="qty" @bind-Value="_ticket.QtyAvailable" class="form-control"/>
+    </div>
+    <div>
+        <label for="price">Price</label>
+        <InputNumber id="price" @bind-Value="_ticket.Price" class="form-control"/>
+    </div>
+    <br/>
+    <div class="d-flex flex-row gap-2">
+        <button type="submit" class="btn btn-primary">@_buttonTxt</button>
+        <button class="btn btn-warning" @onclick="HandleCancel">Cancel</button>
+    </div>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public string EventId { get; set; }
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    private bool _isEditTicket;
+    EventTicket? _ticket = new EventTicket();
+
+    private string _buttonTxt;
+
+    protected override void OnInitialized()
+    {
+        _isEditTicket = Id != null;
+        _buttonTxt = Id == null ? "Create Ticket" : "Update Ticket";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await TicketService.GetTicketById(Id);
+            if (result is not null)
+            {
+                _ticket = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo($"/event/{EventId}");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (_ticket is not null)
+        {
+            if (Id != null)
+            {
+                await TicketService.UpdateTicket(_ticket);
+            }
+            else
+            {
+                await TicketService.CreateTicket(_ticket, EventId);
+            }
+        }
+    }
+
+    void HandleCancel()
+    {
+        NavigationManager.NavigateTo($"/event/{EventId}");
+    }
+
+}
