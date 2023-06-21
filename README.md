@@ -1,3 +1,11 @@
+# Theme: D - Gestão de Eventos e Participantes
+## Instructions
+- Docker port was changed to 5480 due to conflicts with PostgreSQL port.
+
+## Authors
+- Nuno Lopes Nº24897 - @lopesnuno
+- Miguel Oliveira Nº - @MiguelOliveira63
+
 # Software Engineering II - Dev Kit #
 
 ### Introduction ###
