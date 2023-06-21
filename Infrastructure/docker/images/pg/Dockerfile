@@ -11,4 +11,4 @@ ENV POSTGRES_DB=es2
 
 COPY migrations/* /docker-entrypoint-initdb.d/
 
-EXPOSE 5432
+EXPOSE 5480

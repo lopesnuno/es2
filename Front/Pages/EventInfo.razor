@@ -11,6 +11,18 @@
         <i class="oi oi-pencil" @onclick="EditEvent"></i>
     }
 </div>
+@if (_event != null)
+{
+    <p>Date: @_event.Date</p>
+    <p>Location: @_event.Location</p>
+    <p>Description: @_event.Description</p>
+    <p>Category: @_event.Category</p>
+    @foreach (var ticket in _event?.Tickets)
+        {
+            <p>Ticket Name: @ticket.Name</p>
+            <p>Price: @ticket.Price</p>
+        }
+}
 @if (_isEditEvent && _event != null)
 {
     <EditForm Model="_event" OnSubmit="HandleSubmit">
