@@ -32,14 +32,16 @@ else
     <p>Location: @_event.Location</p>
     <p>Description: @_event.Description</p>
     <p>Category: @_event.Category</p>
+    <br/>
+    <h3>Tickets</h3>
     <div class="d-flex flex-row gap-2">
         @if (_event?.Tickets?.Count > 0)
         {
             @foreach (var ticket in _event.Tickets)
             {
                 <div class="d-flex flex-column">
-                    <p>Ticket Name: @ticket.Name</p>
-                    <p>Price: @ticket.Price</p>
+                    <p>@ticket.Name</p>
+                    <p>Price: @ticket.Price€</p>
                     <br/>
                     <button class="btn btn-primary" @onclick="() => HandleEditTicket(ticket.Id.ToString())">
                         Edit Ticket

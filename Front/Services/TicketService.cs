@@ -21,7 +21,7 @@ public class TicketService : ITicketService
 
     public async Task GetTickets()
     {
-        var result = await _httpClient.GetFromJsonAsync<List<EventTicket>>("api/EventTicket");
+        var result = await _httpClient.GetFromJsonAsync<List<EventTicket>>("api/EventTicker");
 
         if (result is not null)
             Tickets = result;
@@ -29,7 +29,7 @@ public class TicketService : ITicketService
 
     public async Task<EventTicket?> GetTicketById(string id)
     {
-        var result = await _httpClient.GetAsync($"api/EventTicket/{id}");
+        var result = await _httpClient.GetAsync($"api/EventTicker/{id}");
 
         if (result.StatusCode == HttpStatusCode.OK)
         {
@@ -52,6 +52,6 @@ public class TicketService : ITicketService
     
     public async Task UpdateTicket(EventTicket ticket)
     {
-        await _httpClient.PutAsJsonAsync($"api/Event/{ticket.Id.ToString()}", ticket);
+        await _httpClient.PutAsJsonAsync($"api/EventTicker/{ticket.Id.ToString()}", ticket);
     }
 }
