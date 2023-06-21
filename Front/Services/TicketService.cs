@@ -7,7 +7,7 @@ namespace Front.Services;
 public class TicketService : ITicketService
 {
     private readonly HttpClient _httpClient;
-    public List<Ticket> Tickets { get; set; } = new List<Ticket>();
+    public List<EventTicket> Tickets { get; set; } = new List<EventTicket>();
 
     public TicketService(HttpClient httpClient)
     {
@@ -17,19 +17,19 @@ public class TicketService : ITicketService
 
     public async Task GetTickets()
     {
-        var result = await _httpClient.GetFromJsonAsync<List<Ticket>>("api/Ticket");
+        var result = await _httpClient.GetFromJsonAsync<List<EventTicket>>("api/EventTicket");
 
         if (result is not null)
             Tickets = result;
     }
 
-    public async Task<Ticket?> GetUserById(string id)
+    public async Task<EventTicket?> GetTicketById(string id)
     {
-        var result = await _httpClient.GetAsync($"api/Ticket/{id}");
+        var result = await _httpClient.GetAsync($"api/EventTicket/{id}");
 
         if (result.StatusCode == HttpStatusCode.OK)
         {
-            return await result.Content.ReadFromJsonAsync<Ticket>();
+            return await result.Content.ReadFromJsonAsync<EventTicket>();
         }
 
         return null;

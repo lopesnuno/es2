@@ -4,8 +4,8 @@ namespace Front.Services;
 
 public interface ITicketService
 {
-    List<Ticket> Ticket { get; set; }
+    List<EventTicket> Tickets { get; set; }
     Task GetTickets();
-    Task<Ticket?> GetTicketById(string id);
+    Task<EventTicket?> GetTicketById(string id);
 }
 
