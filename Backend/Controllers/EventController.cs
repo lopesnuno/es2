@@ -31,18 +31,13 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Event>> GetEvent(Guid id)
         {
-          if (_context.Events == null)
-          {
-              return NotFound();
-          }
-            var @event = await _context.Events.FindAsync(id);
+            var sEvent = await _context.Events
+                .Include(e => e.Organizer)
+                .Include(e => e.Activities)
+                .Include(e => e.Participants)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (@event == null)
-            {
-                return NotFound();
-            }
-
-            return @event;
+            return Ok(sEvent);
         }
 
         // PUT: api/Event/5
@@ -81,14 +76,30 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Event>> PostEvent(Event @event)
         {
-          if (_context.Events == null)
-          {
-              return Problem("Entity set 'ES2DbContext.Events'  is null.");
-          }
+            // TODO: change this to create a new user using API
+            var organizer = new Organizer
+            {
+                Id = new Guid(),
+                Email = "a@gmail.com",
+                Name = "a",
+                // TODO: add bcript
+                Password = "a",
+                Username = "a",
+                PhoneNumber = 123456789,
+                EventsCreated = new List<Event>()
+            };
+            
+            @event.Organizer = organizer;
+            @event.OrganizerId = organizer.Id;
+            @event.Participants = new List<EventParticipant>();
+            @event.Tickets = new List<EventTicket>();
+            @event.Activities = new List<Activity>();
+
             _context.Events.Add(@event);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEvent", new { id = @event.Id }, @event);
+            return Ok(await _context.Events.Include(e => e.Participants).Include(e => e.Tickets)
+                .Include(e => e.Activities).ToListAsync());
         }
 
         // DELETE: api/Event/5

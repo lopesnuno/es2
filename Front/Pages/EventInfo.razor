@@ -1,28 +1,102 @@
+@page "/event"
 @page "/event/{id}"
 @using Front.Services
 @using Front.Models.bModels
+@using System.Runtime.InteropServices.JavaScript
 @inject IEventService EventService
 @inject NavigationManager NavigationManager
 
-<h3>Event - @_event.Name</h3>
-@if (_event != null)
+@if (Id != null)
+{
+    <div class="d-flex flex-row align-items-center gap-2">
+        <h3 class="mr-4">@_eventName</h3>
+        @if (!_isEditEvent)
+        {
+            <button class="btn btn-primary">
+                <i class="oi oi-pencil" @onclick="EditEvent"></i>
+            </button>
+            
+            <button class="btn btn-primary">
+                <i class="oi oi-delete" @onclick="HandleDeleteEvent"></i>
+            </button>
+        }
+    </div>
+}
+else
+{
+    <h3 class="mr-4">Create your own Event</h3>
+}
+
+@if (!_isEditEvent && !_isCreateForm)
 {
     <p>Date: @_event.Date</p>
     <p>Location: @_event.Location</p>
     <p>Description: @_event.Description</p>
     <p>Category: @_event.Category</p>
-    @foreach (var ticket in _event.Tickets)
+    @if (_event?.Tickets?.Count > 0)
+    {
+        @foreach (var ticket in _event.Tickets)
         {
             <p>Ticket Name: @ticket.Name</p>
             <p>Price: @ticket.Price</p>
         }
+    }
 }
+
+@if ((_isEditEvent && _event != null) || _isCreateForm)
+{
+    <EditForm Model="_event" OnSubmit="HandleSubmit">
+        <div>
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="_event.Name" class="form-control"/>
+        </div>
+        <div>
+            <label for="date">Date</label>
+            <InputDate id="date" @bind-Value="_event.Date" class="form-control"/>
+        </div>
+        <div>
+            <label for="location">Location</label>
+            <InputText id="location" @bind-Value="_event.Location" class="form-control"/>
+        </div>
+        <div>
+            <label for="description">Description</label>
+            <InputTextArea id="description" @bind-Value="_event.Description" class="form-control"/>
+        </div>
+        <div>
+            <label for="category">Category</label>
+            <InputSelect id="category" @bind-Value="_event.Category" class="form-control">
+                <option value="@EventCategory.Festival">@EventCategory.Festival</option>
+                <option value="@EventCategory.CulturalEvent">@EventCategory.CulturalEvent</option>
+                <option value="@EventCategory.TechnologyEvent">@EventCategory.TechnologyEvent</option>
+            </InputSelect>
+        </div>
+        <br/>
+        <div class="d-flex flex-row gap-2">
+            <button type="submit" class="btn btn-primary">@_buttonTxt</button>
+            <button class="btn btn-warning" @onclick="HandleCancel">Cancel</button>
+        </div>
+    </EditForm>
+}
+
 @code {
     [Parameter]
     public string? Id { get; set; }
 
-    Event? _event = null!;
-    
+    Event? _event = new Event { Date = DateOnly.FromDateTime(DateTime.Now) };
+    string _eventName = null!;
+
+    private bool _isEditEvent;
+    private bool _isCreateForm;
+
+    string _buttonTxt = null!;
+
+    protected override void OnInitialized()
+    {
+        _buttonTxt = Id == null ? "Create Event" : "Update Event";
+        _isEditEvent = false;
+        _isCreateForm = Id == null;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         if (Id is not null)
@@ -31,11 +105,50 @@
             if (result is not null)
             {
                 _event = result;
+                _eventName = result.Name;
             }
             else
             {
                 NavigationManager.NavigateTo("/events");
             }
         }
+    }
+
+    void EditEvent()
+    {
+        _isEditEvent = true;
+    }
+
+    async Task HandleSubmit()
+    {
+        if (_event != null)
+        {
+            if (Id != null)
+            {
+                await EventService.UpdateEvent(_event);
+                _isEditEvent = false;
+                _eventName = _event.Name;
+            }
+            else
+            {
+                await EventService.CreateEvent(_event);
+            }
+        }
+    }
+
+    void HandleCancel()
+    {
+        if (Id == null)
+        {
+            NavigationManager.NavigateTo("/events");
+        }
+
+        _isEditEvent = false;
+    }
+
+    async Task HandleDeleteEvent()
+    {
+        if (Id != null)
+            await EventService.DeleteEvent(Id);
     }
 }
