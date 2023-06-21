@@ -19,5 +19,6 @@ builder.Services.AddOidcAuthentication(options =>
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IActivityService, ActivityService>();
 
 await builder.Build().RunAsync();

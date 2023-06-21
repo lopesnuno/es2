@@ -25,10 +25,11 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Activity>>> GetActivities()
         {
-          if (_context.Activities == null)
-          {
-              return NotFound();
-          }
+            if (_context.Activities == null)
+            {
+                return NotFound();
+            }
+
             return await _context.Activities.ToListAsync();
         }
 
@@ -36,10 +37,11 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Activity>> GetActivity(Guid id)
         {
-          if (_context.Activities == null)
-          {
-              return NotFound();
-          }
+            if (_context.Activities == null)
+            {
+                return NotFound();
+            }
+
             var activity = await _context.Activities.FindAsync(id);
 
             if (activity == null)
@@ -86,14 +88,15 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Activity>> PostActivity(Activity activity)
         {
-          if (_context.Activities == null)
-          {
-              return Problem("Entity set 'ES2DbContext.Activities'  is null.");
-          }
+            if (_context.Activities == null)
+            {
+                return Problem("Entity set 'ES2DbContext.Activities'  is null.");
+            }
+
             _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetActivity", new { id = activity.Id }, activity);
+            return Ok(CreatedAtAction("GetActivity", new { id = activity.Id }, activity));
         }
 
         // DELETE: api/Activity/5
@@ -104,6 +107,7 @@ namespace Backend.Controllers
             {
                 return NotFound();
             }
+
             var activity = await _context.Activities.FindAsync(id);
             if (activity == null)
             {

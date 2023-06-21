@@ -4,6 +4,7 @@
 @using Front.Models.bModels
 @inject IEventService EventService
 @inject ITicketService TicketService
+@inject IActivityService ActivityService
 @inject NavigationManager NavigationManager
 
 @if (Id != null)
@@ -60,6 +61,36 @@ else
     <br/>
     <button class="btn btn-primary" @onclick="HandleAddTicket">
         Add Ticket
+    </button>
+
+    <br class="m-4"/>
+    <h3>Activities</h3>
+    <div class="d-flex flex-row gap-2">
+        @if (_event?.Activities?.Count > 0)
+        {
+            @foreach (var a in _event.Activities)
+            {
+                <div class="d-flex flex-column">
+                    <p>@a.Name</p>
+                    <p>Date: @a.Date</p>
+                    <p>Description: @a.Description</p>
+                    <br/>
+                    <div class="d-flex flex-col gap-2">
+                        <button class="btn btn-primary" @onclick="() => HandleEditActivity(a.Id.ToString())">
+                            Edit Activity
+                        </button>
+                        <button class="btn btn-warning" @onclick="() => HandleDeleteActivity(a.Id.ToString())">
+                            Delete Activity
+                        </button>
+                    </div>
+
+                </div>
+            }
+        }
+    </div>
+    <br/>
+    <button class="btn btn-primary" @onclick="HandleAddActivity">
+        Add Activity
     </button>
 }
 
@@ -188,6 +219,23 @@ else
     async void HandleDeleteTicket(string ticketId)
     {
         await TicketService.DeleteTicket(ticketId);
+    }
+
+    void HandleAddActivity()
+    {
+        if (Id != null)
+            NavigationManager.NavigateTo($"/event/{Id}/activity");
+    }
+
+    void HandleEditActivity(string activityId)
+    {
+        if (Id != null)
+            NavigationManager.NavigateTo($"/event/{Id}/activity/{activityId}");
+    }
+
+    async void HandleDeleteActivity(string activityId)
+    {
+        await ActivityService.DeleteActivity(activityId);
     }
 
 }
