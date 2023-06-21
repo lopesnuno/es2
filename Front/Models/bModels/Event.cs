@@ -10,7 +10,7 @@ public class Event
     public virtual EventCategory Category { get; set; }
     public Guid OrganizerId { get; set; }
     public Organizer Organizer { get; set; }
-    public ICollection<EventTicket>? Tickets { get; set; } = new List<EventTicket>();
-    public ICollection<Activity>? Activities { get; set; } = new List<Activity>();
-    public ICollection<EventParticipant>? Participants { get; set; } = new List<EventParticipant>();
+    public virtual ICollection<EventTicket>? Tickets { get; set; } = new List<EventTicket>();
+    public virtual ICollection<Activity>? Activities { get; set; } = new List<Activity>();
+    public virtual ICollection<EventParticipant>? Participants { get; set; } = new List<EventParticipant>();
 }

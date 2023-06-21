@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using Front.Models.bModels;
+using Front.Pages;
+using Microsoft.AspNetCore.Components;
 
 namespace Front.Services;
 
@@ -8,9 +10,11 @@ public class TicketService : ITicketService
 {
     private readonly HttpClient _httpClient;
     public List<EventTicket> Tickets { get; set; } = new List<EventTicket>();
+    private readonly NavigationManager _navigationManager;
 
-    public TicketService(HttpClient httpClient)
+    public TicketService(HttpClient httpClient, NavigationManager navigationManager)
     {
+        _navigationManager = navigationManager;
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri("https://localhost:7199/");
     }
@@ -33,5 +37,21 @@ public class TicketService : ITicketService
         }
 
         return null;
+    }
+    
+    public async Task CreateTicket(EventTicket ticket, string eventId)
+    {
+        ticket.EventId = new Guid(eventId);
+        var res = await _httpClient.PostAsJsonAsync("api/EventTicker", ticket);
+
+        if (res.StatusCode == HttpStatusCode.OK)
+        {
+            _navigationManager.NavigateTo($"/event/{eventId}");
+        }
+    }
+    
+    public async Task UpdateTicket(EventTicket ticket)
+    {
+        await _httpClient.PutAsJsonAsync($"api/Event/{ticket.Id.ToString()}", ticket);
     }
 }

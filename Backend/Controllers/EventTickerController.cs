@@ -25,10 +25,11 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventTicket>>> GetTicketTypes()
         {
-          if (_context.TicketTypes == null)
-          {
-              return NotFound();
-          }
+            if (_context.TicketTypes == null)
+            {
+                return NotFound();
+            }
+
             return await _context.TicketTypes.ToListAsync();
         }
 
@@ -36,10 +37,11 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EventTicket>> GetEventTicket(Guid id)
         {
-          if (_context.TicketTypes == null)
-          {
-              return NotFound();
-          }
+            if (_context.TicketTypes == null)
+            {
+                return NotFound();
+            }
+
             var eventTicket = await _context.TicketTypes.FindAsync(id);
 
             if (eventTicket == null)
@@ -86,14 +88,15 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<EventTicket>> PostEventTicket(EventTicket eventTicket)
         {
-          if (_context.TicketTypes == null)
-          {
-              return Problem("Entity set 'ES2DbContext.TicketTypes'  is null.");
-          }
+            if (_context.TicketTypes == null)
+            {
+                return Problem("Entity set 'ES2DbContext.TicketTypes'  is null.");
+            }
+
             _context.TicketTypes.Add(eventTicket);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEventTicket", new { id = eventTicket.Id }, eventTicket);
+            return Ok(CreatedAtAction("GetEventTicket", new { id = eventTicket.Id }, eventTicket));
         }
 
         // DELETE: api/EventTicker/5
@@ -104,6 +107,7 @@ namespace Backend.Controllers
             {
                 return NotFound();
             }
+
             var eventTicket = await _context.TicketTypes.FindAsync(id);
             if (eventTicket == null)
             {

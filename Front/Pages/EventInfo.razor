@@ -2,7 +2,6 @@
 @page "/event/{id}"
 @using Front.Services
 @using Front.Models.bModels
-@using System.Runtime.InteropServices.JavaScript
 @inject IEventService EventService
 @inject NavigationManager NavigationManager
 
@@ -33,14 +32,26 @@ else
     <p>Location: @_event.Location</p>
     <p>Description: @_event.Description</p>
     <p>Category: @_event.Category</p>
-    @if (_event?.Tickets?.Count > 0)
-    {
-        @foreach (var ticket in _event.Tickets)
+    <div class="d-flex flex-row gap-2">
+        @if (_event?.Tickets?.Count > 0)
         {
-            <p>Ticket Name: @ticket.Name</p>
-            <p>Price: @ticket.Price</p>
+            @foreach (var ticket in _event.Tickets)
+            {
+                <div class="d-flex flex-column">
+                    <p>Ticket Name: @ticket.Name</p>
+                    <p>Price: @ticket.Price</p>
+                    <br/>
+                    <button class="btn btn-primary" @onclick="() => HandleEditTicket(ticket.Id.ToString())">
+                        Edit Ticket
+                    </button>
+                </div>
+            }
         }
-    }
+    </div>
+    <br/>
+    <button class="btn btn-primary" @onclick="HandleAddTicket">
+        Add Ticket
+    </button>
 }
 
 @if ((_isEditEvent && _event != null) || _isCreateForm)
@@ -150,5 +161,17 @@ else
     {
         if (Id != null)
             await EventService.DeleteEvent(Id);
+    }
+
+    void HandleAddTicket()
+    {
+        if (Id != null)
+            NavigationManager.NavigateTo($"/event/{Id}/ticket");
+    }
+
+    void HandleEditTicket(string ticketId)
+    {
+        if (Id != null)
+            NavigationManager.NavigateTo($"/event/{Id}/ticket/{ticketId}");
     }
 }

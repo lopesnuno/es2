@@ -20,11 +20,15 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
         {
-          if (_context.Events == null)
-          {
-              return NotFound();
-          }
-            return await _context.Events.ToListAsync();
+            if (_context.Events == null)
+            {
+                return NotFound();
+            }
+
+            return await _context.Events.Include(e => e.Organizer)
+                .Include(e => e.Activities)
+                .Include(e => e.Participants).Include(e => e.Tickets)
+                .ToListAsync();
         }
 
         // GET: api/Event/5
@@ -35,6 +39,7 @@ namespace Backend.Controllers
                 .Include(e => e.Organizer)
                 .Include(e => e.Activities)
                 .Include(e => e.Participants)
+                .Include(e => e.Tickets)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             return Ok(sEvent);
