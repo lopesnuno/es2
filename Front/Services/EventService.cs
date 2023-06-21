@@ -1,16 +1,19 @@
 using System.Net;
 using System.Net.Http.Json;
 using Front.Models.bModels;
+using Microsoft.AspNetCore.Components;
 
 namespace Front.Services;
 
 public class EventService : IEventService
 {
     private readonly HttpClient _httpClient;
+    private readonly NavigationManager _navigationManager;
     public List<Event> Events { get; set; } = new List<Event>();
 
-    public EventService(HttpClient httpClient)
+    public EventService(HttpClient httpClient, NavigationManager navigationManager)
     {
+        _navigationManager = navigationManager;
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri("https://localhost:7199/");
     }
@@ -33,5 +36,10 @@ public class EventService : IEventService
         }
 
         return null;
+    }
+
+    public async Task UpdateEvent(Event newEventInfo)
+    {
+        await _httpClient.PutAsJsonAsync($"api/Event/{newEventInfo.Id.ToString()}", newEventInfo);
     }
 }

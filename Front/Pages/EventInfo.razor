@@ -4,38 +4,98 @@
 @inject IEventService EventService
 @inject NavigationManager NavigationManager
 
-<h3>Event - @_event.Name</h3>
+<div class="d-flex flex-row align-items-center">
+    <h3 class="mr-4">@_eventName</h3>
+    @if (!_isEditEvent)
+    {
+        <i class="oi oi-pencil" @onclick="EditEvent"></i>
+    }
+</div>
 @if (_event != null)
 {
     <p>Date: @_event.Date</p>
     <p>Location: @_event.Location</p>
     <p>Description: @_event.Description</p>
     <p>Category: @_event.Category</p>
-    @foreach (var ticket in _event.Tickets)
+    @foreach (var ticket in _event?.Tickets)
         {
             <p>Ticket Name: @ticket.Name</p>
             <p>Price: @ticket.Price</p>
         }
 }
+@if (_isEditEvent && _event != null)
+{
+    <EditForm Model="_event" OnSubmit="HandleSubmit">
+        <div>
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="_event.Name" class="form-control"/>
+        </div>
+        <div>
+            <label for="date">Date</label>
+            <InputDate id="date" @bind-Value="_event.Date" class="form-control"/>
+        </div>
+        <div>
+            <label for="location">Location</label>
+            <InputText id="location" @bind-Value="_event.Location" class="form-control"/>
+        </div>
+        <div>
+            <label for="description">Description</label>
+            <InputTextArea id="description" @bind-Value="_event.Description" class="form-control"/>
+        </div>
+        <div>
+            <label for="category">Category</label>
+            <InputSelect id="category" @bind-Value="_event.Category" class="form-control">
+                <option value="@EventCategory.Festival">@EventCategory.Festival</option>
+                <option value="@EventCategory.CulturalEvent">@EventCategory.CulturalEvent</option>
+                <option value="@EventCategory.TechnologyEvent">@EventCategory.TechnologyEvent</option>
+            </InputSelect>
+        </div>
+        <br />
+        <div>
+            <button type="submit" class="btn btn-primary">Update Event</button>
+        </div>
+    </EditForm>
+}
+
 @code {
     [Parameter]
     public string? Id { get; set; }
 
     Event? _event = null!;
+    string _eventName = null!;
+
+    private bool _isEditEvent;
     
     protected override async Task OnInitializedAsync()
     {
+        _isEditEvent = false;
+        
         if (Id is not null)
         {
             var result = await EventService.GetEventById(Id);
             if (result is not null)
             {
                 _event = result;
+                _eventName = result.Name;
             }
             else
             {
                 NavigationManager.NavigateTo("/events");
             }
+        }
+    }
+
+    void EditEvent()
+    {
+        _isEditEvent = true;
+    }
+
+    async Task HandleSubmit()
+    {
+        if (_event != null)
+        {
+            await EventService.UpdateEvent(_event);
+            _isEditEvent = false;
         }
     }
 }

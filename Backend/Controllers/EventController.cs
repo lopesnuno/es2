@@ -31,18 +31,13 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Event>> GetEvent(Guid id)
         {
-          if (_context.Events == null)
-          {
-              return NotFound();
-          }
-            var @event = await _context.Events.FindAsync(id);
+            var sEvent = await _context.Events
+                .Include(e => e.Organizer)
+                .Include(e => e.Activities)
+                .Include(e => e.Participants)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (@event == null)
-            {
-                return NotFound();
-            }
-
-            return @event;
+            return Ok(sEvent);
         }
 
         // PUT: api/Event/5
