@@ -2,15 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BusinessLogic.Entities;
 
-public class EventParticipant
+public class ActivityParticipant
 {
     [Key]
-    public Guid EventId { get; set; }
+    public Guid ActivityId { get; set; }
 
     [Key]
     public Guid ParticipantId { get; set; }
 
-    public Event Event { get; set; }
+    public Activity Activity { get; set; }
 
     public Participant Participant { get; set; }
 }

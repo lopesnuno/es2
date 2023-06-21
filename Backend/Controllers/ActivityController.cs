@@ -30,7 +30,7 @@ namespace Backend.Controllers
                 return NotFound();
             }
 
-            return await _context.Activities.ToListAsync();
+            return await _context.Activities.Include(a => a.Participants).Include(a => a.Event).ToListAsync();
         }
 
         // GET: api/Activity/5

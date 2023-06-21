@@ -27,7 +27,7 @@ namespace Backend.Controllers
 
             return await _context.Events.Include(e => e.Organizer)
                 .Include(e => e.Activities)
-                .Include(e => e.Participants).Include(e => e.Tickets)
+                .Include(e => e.Tickets)
                 .ToListAsync();
         }
 
@@ -38,7 +38,6 @@ namespace Backend.Controllers
             var sEvent = await _context.Events
                 .Include(e => e.Organizer)
                 .Include(e => e.Activities)
-                .Include(e => e.Participants)
                 .Include(e => e.Tickets)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -81,7 +80,7 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Event>> PostEvent(Event @event)
         {
-            // TODO: change this to create a new user using API
+            // TODO: change this to get and user current auth user
             var organizer = new Organizer
             {
                 Id = new Guid(),
@@ -93,17 +92,16 @@ namespace Backend.Controllers
                 PhoneNumber = 123456789,
                 EventsCreated = new List<Event>()
             };
-            
+
             @event.Organizer = organizer;
             @event.OrganizerId = organizer.Id;
-            @event.Participants = new List<EventParticipant>();
             @event.Tickets = new List<EventTicket>();
             @event.Activities = new List<Activity>();
 
             _context.Events.Add(@event);
             await _context.SaveChangesAsync();
 
-            return Ok(await _context.Events.Include(e => e.Participants).Include(e => e.Tickets)
+            return Ok(await _context.Events.Include(e => e.Tickets)
                 .Include(e => e.Activities).ToListAsync());
         }
 
@@ -115,6 +113,7 @@ namespace Backend.Controllers
             {
                 return NotFound();
             }
+
             var @event = await _context.Events.FindAsync(id);
             if (@event == null)
             {
