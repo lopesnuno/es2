@@ -1,13 +1,59 @@
 ﻿@page "/"
+@using Front.Services
+@inject IEventService EventService
+@inject NavigationManager NavigationManager
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Eventos</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Available Events</h1>
 
-<div class="alert alert-warning" role="alert">
-    Before authentication will function correctly, you must configure your provider details in <code>Program.cs</code>
-</div>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Local</th>
+        <td>Description</td>
+        <td>Category</td>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var e in EventService.Events)
+    {
+        <tr>
+            <td>@e.Name</td>
+            <td>@e.Date</td>
+            <td>@e.Location</td>
+            <td>@e.Description</td>
+            <td>@e.Category</td>
+            <td>
+                <button class="btn btn-primary" @onclick="() => ShowEvent(e.Id.ToString())">
+                    <i class="oi oi-eye"></i>
+                </button>
+            </td>
+        </tr>
+    }
+    </tbody>
+    <br/>
+    <button class="btn btn-primary" @onclick="HandleCreateEvent">
+        Create your event
+    </button>
+</table>
 
-Welcome to your new app.
+@code
+{
+    void ShowEvent(string id)
+    {
+        NavigationManager.NavigateTo($"event/slug/{id}");
+    }
 
-<SurveyPrompt Title="How is Blazor working for you?"/>
+    void HandleCreateEvent()
+    {
+        NavigationManager.NavigateTo("event");
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await EventService.GetEvents();
+    }
+}

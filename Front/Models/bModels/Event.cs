@@ -12,5 +12,4 @@ public class Event
     public Organizer Organizer { get; set; }
     public virtual ICollection<EventTicket>? Tickets { get; set; } = new List<EventTicket>();
     public virtual ICollection<Activity>? Activities { get; set; } = new List<Activity>();
-    public virtual ICollection<EventParticipant>? Participants { get; set; } = new List<EventParticipant>();
 }

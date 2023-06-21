@@ -1,0 +1,71 @@
+@page "/event/slug/{id}"
+@using Front.Services
+@using Front.Models.bModels
+@inject IEventService EventService
+@inject NavigationManager NavigationManager
+
+<h3>@_event.Name</h3>
+
+<p>Date: @_event.Date</p>
+<p>Location: @_event.Location</p>
+<p>Description: @_event.Description</p>
+<p>Category: @_event.Category</p>
+<br/>
+<h3>Tickets</h3>
+<div class="d-flex flex-row gap-2">
+    @if (_event?.Tickets?.Count > 0)
+    {
+        @foreach (var ticket in _event.Tickets)
+        {
+            <div class="d-flex flex-column">
+                <p>@ticket.Name</p>
+                <p>Price: @ticket.Price€</p>
+                <br/>
+            </div>
+        }
+    }
+</div>
+<br/>
+
+<br class="m-4"/>
+<h3>Activities</h3>
+<div class="d-flex flex-row gap-2">
+    @if (_event?.Activities?.Count > 0)
+    {
+        @foreach (var a in _event.Activities)
+        {
+            <div class="d-flex flex-column">
+                <p>@a.Name</p>
+                <p>Date: @a.Date</p>
+                <p>Description: @a.Description</p>
+                <br/>
+            </div>
+        }
+    }
+</div>
+<br/>
+
+@code {
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    Event? _event = new Event { Date = DateOnly.FromDateTime(DateTime.Now) };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await EventService.GetEventById(Id);
+            if (result is not null)
+            {
+                _event = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/events");
+            }
+        }
+    }
+
+}
