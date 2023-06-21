@@ -54,4 +54,10 @@ public class TicketService : ITicketService
     {
         await _httpClient.PutAsJsonAsync($"api/EventTicker/{ticket.Id.ToString()}", ticket);
     }
+    
+    public async Task DeleteTicket(string id)
+    {
+        await _httpClient.DeleteAsync($"api/EventTicker/{id}");
+        _navigationManager.NavigateTo("/events");
+    }
 }

@@ -10,5 +10,6 @@ public interface ITicketService
     Task<EventTicket?> GetTicketById(string id);
     Task CreateTicket(EventTicket ticket, string eventId);
     Task UpdateTicket(EventTicket ticket);
+    Task DeleteTicket(string id);
 }
 
