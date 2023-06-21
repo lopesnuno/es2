@@ -23,6 +23,14 @@ builder.Services
     .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddSingleton<WeatherForecastService>();
 
+
+// Add HttpClient service
+builder.Services.AddScoped<HttpClient>(sp =>
+{
+    var navigationManager = sp.GetRequiredService<NavigationManager>();
+    return new HttpClient { BaseAddress = new Uri(navigationManager.BaseUri) };
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

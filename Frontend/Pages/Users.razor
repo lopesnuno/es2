@@ -1,0 +1,331 @@
+﻿@using Microsoft.AspNetCore.Components
+@using BusinessLogic.Models
+@inject HttpClient httpClient
+@using Frontend.Models
+@using System.Text.Json
+@using System.Text
+@page "/users"
+
+<PageTitle>Users</PageTitle>
+
+<style>
+    .button {
+        margin-top: 20px;
+    }
+    label {
+        margin-top: 10px;
+        color: royalblue;
+    }
+    InputText{
+        border-color: royalblue;
+    }
+</style>
+
+<div class="text-center">
+    <button class="btn btn-primary custom-btn" @onclick="ShowCreateForm">Add Users</button>
+    <button class="btn btn-primary custom-btn" @onclick="ListAllUsers">List Users</button>
+</div>
+
+@if (showCreateForm)
+{
+    <h4>Add Users</h4>
+
+    <EditForm Model="@user" OnValidSubmit="createUser">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <InputText type="username" class="form-control" id="username" @bind-Value="@user.Username" />
+            <ValidationMessage For="@(() => user.Username)" />
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <InputText type="password" class="form-control" id="password" @bind-Value="@user.Password"/>
+            <ValidationMessage For="@(() => user.Password)"/>
+        </div>
+
+        <div class="form-group">
+            <label for="userRole">User Role</label>
+            <select id="userRole" class="form-control" @bind="@user.RoleName" required>
+                <option value="manager">manager</option>
+                <option value="user">user</option>
+            </select>
+            <ValidationMessage For="@(() => user.RoleName)"/>
+        </div>
+        
+        <div class="button">
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+
+        <div>
+            @if (!string.IsNullOrEmpty(createMessage))
+            {
+                <div class="alert alert-info">@createMessage</div>
+            }
+        </div>
+    </EditForm>
+}
+
+
+@if (showUserList)
+{
+    <h4>User List</h4>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in users)
+        {
+            <tr>
+                <td>@user.UserID</td>
+                <td>@user.Username</td>
+                <td>@user.RoleName</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="() => ShowEditUserForm(user)">Edit</button>
+                    <button class="btn btn-danger" @onclick="() => ShowDeleteConfirmation(user.UserID)">Delete</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@if (showDeleteConfirmation)
+        {
+            <div class="modal show d-block" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Delete</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this user?</p>
+                            @if (!string.IsNullOrEmpty(actionMessage))
+                            {
+                                <div class="alert alert-info">@actionMessage</div>
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" @onclick="ConfirmDelete">Confirm</button>
+                            <button type="button" class="btn btn-danger" @onclick="CancelDelete">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+@if (editFormVisible)
+{
+    <h4>Edit User</h4>
+
+    <EditForm Model="@userToEdit" OnValidSubmit="UpdateUser">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <InputText type="username" class="form-control" id="username" @bind-Value="@userToEdit.Username" />
+            <ValidationMessage For="@(() => userToEdit.Username)" />
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <InputText type="password" class="form-control" id="password" @bind-Value="@userToEdit.Password"/>
+            <ValidationMessage For="@(() => userToEdit.Password)"/>
+        </div>
+
+        <div class="form-group">
+            <label for="userRole">User Role</label>
+            <select id="userRole" class="form-control" @bind="@userToEdit.RoleName" required>
+                <option value="manager">manager</option>
+                <option value="user">user</option>
+            </select>
+            <ValidationMessage For="@(() => userToEdit.RoleID)"/>
+        </div>
+        
+        <div class="button">
+            <button class="btn btn-primary" type="submit">Update</button>
+            <button class="btn btn-danger" @onclick="CancelEdit">Cancel</button>
+        </div>
+
+        <div>
+            @if (!string.IsNullOrEmpty(actionMessage))
+            {
+                <div class="alert alert-info">@actionMessage</div>
+            }
+        </div>
+    </EditForm>
+}
+
+@code {
+    private string actionMessage = "";
+    private List<UserModel> users;
+    private UserModel user = new UserModel();
+    private int editUtilizadorId;
+    private int deleteUtilizadorId;
+    private string createMessage;
+    bool showCreateForm = false;
+    bool showEditForm = false;
+    bool showDeleteConfirmation = false;
+    private bool showUserList = false;
+    
+    private async Task ListUsers()
+    {
+        users = await httpClient.GetFromJsonAsync<List<UserModel>>("http://localhost:5052/api/Users");
+    }
+    
+    private async Task ListAllUsers()
+    {
+        var response = await httpClient.GetAsync("http://localhost:5052/api/Users");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var document = JsonDocument.Parse(jsonResponse);
+
+            users = document.RootElement.GetProperty("$values").EnumerateArray()
+                .Select(element => new UserModel 
+                { 
+                    UserID = element.GetProperty("userID").GetInt32(), 
+                    Username = element.GetProperty("username").GetString(), 
+                    Password = element.GetProperty("password").GetString(), 
+                    RoleID = element.GetProperty("roleID").GetInt32(), 
+                    RoleName = element.GetProperty("roleName").GetString()
+                })
+                .ToList();
+
+            showUserList = true;
+            showCreateForm = false;
+            showEditForm = false;
+            showDeleteConfirmation = false;
+        }
+        else
+        {
+            users = new List<UserModel>();
+            showUserList = false;
+            showCreateForm = false; 
+            showEditForm = false;
+            showDeleteConfirmation = false;
+        }
+    }
+    
+    private async Task createUser()
+    {
+        var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+        var response = await httpClient.PostAsync("http://localhost:5052/api/Users", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            createMessage = "User created with success";
+            user = new UserModel();
+            showCreateForm = false;
+            await ListAllUsers();
+        }
+        else
+        {
+            createMessage = "Error creating user";
+        }
+    }
+
+    private void ShowCreateForm()
+    {
+        user = new UserModel();
+        user.RoleName = "manager";
+        showCreateForm = true;
+        showEditForm = false;
+        showDeleteConfirmation = false;
+        showUserList = false;
+    }
+    
+    private async Task deleteUser(int userId)
+    {
+        var userToDelete = users.FirstOrDefault(u => u.UserID == userId);
+
+        // Verifique se o usuário é um administrador
+        if (userToDelete != null && userToDelete.RoleName.ToLower() == "admin")
+        {
+            actionMessage = "Cannot delete admin users";
+        }
+        else
+        {
+            var response = await httpClient.DeleteAsync($"http://localhost:5052/api/Users/{userId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                actionMessage = "User deleted successfully";
+                await ListAllUsers();
+            }
+            else
+            {
+                actionMessage = "Failed to delete user";
+            }
+        }
+    }
+    
+    private int userIdToDelete;
+    
+    private void ShowDeleteConfirmation(int userId)
+    {
+        var userToDelete = users.FirstOrDefault(u => u.UserID == userId);
+
+        if (userToDelete != null && userToDelete.RoleName.ToLower() == "admin")
+        {
+            actionMessage = "Cannot delete admin users";
+        }
+        else
+        {
+            actionMessage = "";
+            userIdToDelete = userId;
+            showDeleteConfirmation = true;
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        showDeleteConfirmation = false;
+        await deleteUser(userIdToDelete);
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteConfirmation = false;
+    }
+    
+    private UserModel userToEdit;
+    bool editFormVisible = false;
+
+    private void ShowEditUserForm(UserModel user)
+    {
+        userToEdit = user;
+        editFormVisible = true;
+        showCreateForm = false;
+        showDeleteConfirmation = false;
+        showUserList = false;
+    }
+
+    private async Task UpdateUser()
+    {
+        var content = new StringContent(JsonSerializer.Serialize(userToEdit), Encoding.UTF8, "application/json");
+        var response = await httpClient.PutAsync($"http://localhost:5052/api/Users/{userToEdit.UserID}", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            actionMessage = "User updated successfully";
+            userToEdit = null;
+            editFormVisible = false;
+            await ListAllUsers();
+        }
+        else
+        {
+            actionMessage = "Failed to update user";
+        }
+    }
+    private void CancelEdit()
+    {
+        showEditForm = false;
+        user = new UserModel();
+    }
+}
