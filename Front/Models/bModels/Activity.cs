@@ -1,5 +1,3 @@
-using BusinessLogic.Entities;
-
 namespace Front.Models.bModels;
 
 public class Activity
@@ -10,5 +8,5 @@ public class Activity
     public string Description { get; set; } = null!;
     public Guid EventId { get; set; }
     public Event Event { get; set; }
-    public ICollection<ActivityParticipant>? Participants { get; set; } = new List<ActivityParticipant>();
+    public ICollection<User>? Participants { get; set; } = new List<User>();
 }

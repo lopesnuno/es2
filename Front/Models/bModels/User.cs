@@ -8,4 +8,9 @@ public class User
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
     public int PhoneNumber { get; set; }
+    public ICollection<Activity>? Activities { get; set; } = new List<Activity>();
+    public ICollection<Event>? EventsCreated { get; set; } = new List<Event>();
+    
+    // this can either be Regular/UserManager/Admin
+    public string Role = null!; 
 }

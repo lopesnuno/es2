@@ -81,7 +81,7 @@ namespace Backend.Controllers
         public async Task<ActionResult<Event>> PostEvent(Event @event)
         {
             // TODO: change this to get and user current auth user
-            var organizer = new Organizer
+            var organizer = new User
             {
                 Id = new Guid(),
                 Email = "a@gmail.com",
