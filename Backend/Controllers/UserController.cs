@@ -36,11 +36,13 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(Guid id)
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
-            var user = await _context.Users.FindAsync(id);
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.Include(u => u.Activities).Include(u => u.EventsCreated)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (user == null)
             {
