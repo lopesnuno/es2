@@ -12,7 +12,6 @@ public class UserService : IUserService
     public UserService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("https://localhost:7199/");
     }
 
     public async Task GetUsers()

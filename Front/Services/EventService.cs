@@ -15,7 +15,6 @@ public class EventService : IEventService
     {
         _navigationManager = navigationManager;
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("https://localhost:7199/");
     }
 
     public async Task GetEvents()

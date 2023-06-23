@@ -34,7 +34,7 @@ namespace BusinessLogic.Migrations
 
                     b.HasIndex("ParticipantsId");
 
-                    b.ToTable("ActivityUser");
+                    b.ToTable("ActivityUser", (string)null);
                 });
 
             modelBuilder.Entity("BusinessLogic.Entities.Activity", b =>
@@ -61,7 +61,7 @@ namespace BusinessLogic.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("Activities");
+                    b.ToTable("Activities", (string)null);
                 });
 
             modelBuilder.Entity("BusinessLogic.Entities.Event", b =>
@@ -96,7 +96,7 @@ namespace BusinessLogic.Migrations
 
                     b.HasIndex("OrganizerId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
 
                     b.HasData(
                         new
@@ -134,7 +134,7 @@ namespace BusinessLogic.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("TicketTypes");
+                    b.ToTable("TicketTypes", (string)null);
                 });
 
             modelBuilder.Entity("BusinessLogic.Entities.User", b =>
@@ -164,7 +164,7 @@ namespace BusinessLogic.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
