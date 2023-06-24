@@ -58,4 +58,16 @@ public class ActivityService : IActivityService
         await _httpClient.DeleteAsync($"api/Activity/{id}");
         _navigationManager.NavigateTo("/events");
     }
+
+    public async Task BookParticipant(string activityId)
+    {
+        // TODO: Get user and add it
+        var res = await _httpClient.GetAsync("api/User/f8551c2d-3172-4d56-af8e-e022d067e5e3");
+
+        if (res.IsSuccessStatusCode)
+        {
+            await _httpClient.PostAsJsonAsync($"api/Activity/add-participant/{activityId}", res.Content.ReadFromJsonAsync<User>());
+            _navigationManager.NavigateTo("/events");    
+        }
+    }
 }

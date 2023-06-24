@@ -42,7 +42,7 @@ namespace Backend.Controllers
                 return NotFound();
             }
 
-            var activity = await _context.Activities.FindAsync(id);
+            var activity = await _context.Activities.Include(a => a.Participants).FirstOrDefaultAsync(a => a.Id == id);
 
             if (activity == null)
             {
@@ -123,6 +123,30 @@ namespace Backend.Controllers
         private bool ActivityExists(Guid id)
         {
             return (_context.Activities?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [HttpPost("add-participant/{id}")]
+        public async Task<ActionResult<Activity>> BookParticipant(string activityId, User participant)
+        {
+            if (_context.Activities == null)
+            {
+                return Problem("Entity set 'ES2DbContext.Activities'  is null.");
+            }
+
+            Activity? activity = await _context.Activities.FindAsync(new Guid(activityId));
+
+            if (activity is null)
+                return BadRequest("Activity does not exist");
+
+            participant.Activities.Add(activity);
+            activity.Participants.Add(participant);
+            
+            _context.Activities.Update(activity);
+            _context.Users.Update(participant);
+            
+            await _context.SaveChangesAsync();
+
+            return Ok("Success");
         }
     }
 }

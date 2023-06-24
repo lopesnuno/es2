@@ -10,4 +10,5 @@ public interface IActivityService
     Task CreateActivity(Activity activity, string eventId);
     Task UpdateActivity(Activity activity);
     Task DeleteActivity(string id);
+    Task BookParticipant(string activityId);
 }

@@ -29,7 +29,9 @@ namespace Backend.Controllers
           {
               return NotFound();
           }
-            return await _context.Users.ToListAsync();
+
+          return await _context.Users.Where(u => u.Name != "Admin").Include(u => u.Activities)
+              .Include(u => u.EventsCreated).ToListAsync();
         }
 
         // GET: api/User/5

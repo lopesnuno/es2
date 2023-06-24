@@ -2,6 +2,7 @@
 @using Front.Services
 @using Front.Models.bModels
 @inject IEventService EventService
+@inject IActivityService ActivityService
 @inject NavigationManager NavigationManager
 
 <h3>@_event.Name</h3>
@@ -39,6 +40,7 @@
                 <p>Date: @a.Date</p>
                 <p>Description: @a.Description</p>
                 <br/>
+                <button type="button" class="btn btn-primary" @onclick="() => HandleBookParticipant(a.Id.ToString())">Book Activity</button>
             </div>
         }
     }
@@ -68,4 +70,8 @@
         }
     }
 
+    async Task HandleBookParticipant(string id)
+    {
+        await ActivityService.BookParticipant(id);
+    }    
 }
