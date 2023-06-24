@@ -1,0 +1,52 @@
+@page "/Users"
+@using Front.Services
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>Users</h3>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Username</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var e in UserService.Users)
+    {
+        <tr>
+            <td>@e.Name</td>
+            <td>@e.Email</td>
+            <td>@e.Username</td>
+            <td>
+                <button class="btn btn-primary" @onclick="() => EditUser(e.Id.ToString())">
+                    <i class="oi oi-pencil"></i>
+                </button>
+            </td>
+        </tr>
+    }
+    </tbody>
+    <br/>
+    <button class="btn btn-primary" @onclick="HandleCreateUser">
+        Create new user
+    </button>
+</table>
+
+@code {
+    void EditUser(string id)
+    {
+        NavigationManager.NavigateTo($"user/{id}");
+    }
+
+    void HandleCreateUser()
+    {
+        NavigationManager.NavigateTo("user");
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await UserService.GetUsers();
+    }
+}

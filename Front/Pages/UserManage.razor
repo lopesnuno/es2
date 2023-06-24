@@ -1,0 +1,107 @@
+@page "/user/{id}"
+@page "/user"
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+
+@using Microsoft.AspNetCore.Components
+@using Front.Models.bModels
+@using Front.Services
+
+@if (!string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(_user.Name))
+{
+    <div class="d-flex flex-row align-items-center gap-2">
+        <h3>Edit user - @_user.Name</h3>
+        <button class="btn btn-primary">
+            <i class="oi oi-delete" @onclick="HandleDeleteUser"></i>
+        </button>
+    </div>
+}
+else
+{
+    <h3>Create use</h3>
+}
+
+<EditForm Model="_user" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Username</label>
+        <InputText id="name" @bind-Value="_user.Username" class="form-control"/>
+    </div>
+    <div>
+        <label for="date">Name</label>
+        <InputText id="date" @bind-Value="_user.Name" class="form-control"/>
+    </div>
+    <div>
+        <label for="location">Email</label>
+        <InputText id="location" @bind-Value="_user.Email" class="form-control"/>
+    </div>
+    <div>
+        <label for="description">Phone number</label>
+        <InputNumber id="description" @bind-Value="_user.PhoneNumber" class="form-control"/>
+    </div>
+    <div>
+        <label for="category">Password</label>
+        <InputText type="password" id="category" @bind-Value="_user.Password" class="form-control"/>
+    </div>
+    <br/>
+    <div class="d-flex flex-row gap-2">
+        <button type="submit" class="btn btn-primary">@_buttonTxt</button>
+        <button class="btn btn-warning" @onclick="HandleCancel">Cancel</button>
+    </div>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    User? _user = new User();
+    string _buttonTxt = null!;
+
+    protected override void OnInitialized()
+    {
+        _buttonTxt = Id == null ? "Create User" : "Update User";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await UserService.GetUserById(Id);
+            if (result is not null)
+            {
+                _user = result;
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/users");
+            }
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (_user != null)
+        {
+            if (Id != null)
+            {
+                await UserService.UpdateUser(_user);
+            }
+            else
+            {
+                await UserService.CreateUser(_user);
+            }
+        }
+    }
+
+    void HandleCancel()
+    {
+        NavigationManager.NavigateTo("/users");
+    }
+
+    async Task HandleDeleteUser()
+    {
+        if (Id != null)
+            await UserService.DeleteUser(Id);
+    }
+
+}
