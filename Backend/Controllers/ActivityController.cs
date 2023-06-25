@@ -32,6 +32,19 @@ namespace Backend.Controllers
 
             return await _context.Activities.Include(a => a.Participants).Include(a => a.Event).ToListAsync();
         }
+        
+        
+        [HttpGet("event/{id}")]
+        public async Task<ActionResult<IEnumerable<Activity>>> GetEventActivities(Guid id)
+        {
+            if (_context.Activities == null)
+            {
+                return NotFound();
+            }
+
+            return await _context.Activities.Where(a => a.EventId == id).Include(a => a.Participants)
+                .ToListAsync();
+        }
 
         // GET: api/Activity/5
         [HttpGet("{id}")]
@@ -126,23 +139,21 @@ namespace Backend.Controllers
         }
 
         [HttpPost("add-participant/{id}")]
-        public async Task<ActionResult<Activity>> BookParticipant(string activityId, User participant)
+        public async Task<ActionResult<Activity>> BookParticipant(Guid id, User participant)
         {
             if (_context.Activities == null)
             {
                 return Problem("Entity set 'ES2DbContext.Activities'  is null.");
             }
 
-            Activity? activity = await _context.Activities.FindAsync(new Guid(activityId));
+            Activity? activity = await _context.Activities.FindAsync(id);
 
             if (activity is null)
                 return BadRequest("Activity does not exist");
 
-            participant.Activities.Add(activity);
             activity.Participants.Add(participant);
             
             _context.Activities.Update(activity);
-            _context.Users.Update(participant);
             
             await _context.SaveChangesAsync();
 
