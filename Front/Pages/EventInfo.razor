@@ -92,6 +92,36 @@ else
     <button class="btn btn-primary" @onclick="HandleAddActivity">
         Add Activity
     </button>
+    <br/>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Activity</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var a in ActivityService.Activities)
+        {
+            @if (a.Participants.Count > 0)
+            {
+                <tr>
+                    @a.Name
+                    @foreach (User p in a.Participants)
+                    {
+                        <td>@p.Name</td>
+                    }
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>No participants yet</td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
 }
 
 @if ((_isEditEvent && _event != null) || _isCreateForm)
@@ -135,6 +165,7 @@ else
     public string? Id { get; set; }
 
     Event? _event = new Event { Date = DateOnly.FromDateTime(DateTime.Now) };
+    ICollection<Activity> _activities = new List<Activity>();
     string _eventName = null!;
 
     private bool _isEditEvent;
@@ -154,6 +185,8 @@ else
         if (Id is not null)
         {
             var result = await EventService.GetEventById(Id);
+            await ActivityService.GetEventActivities(Id);
+
             if (result is not null)
             {
                 _event = result;

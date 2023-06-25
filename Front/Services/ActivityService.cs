@@ -24,7 +24,15 @@ public class ActivityService : IActivityService
         if (result is not null)
             Activities = result;
     }
+    
+    public async Task GetEventActivities(string id)
+    {
+        var result = await _httpClient.GetFromJsonAsync<List<Activity>>($"api/Activity/event/{id}");
 
+        if (result is not null)
+            Activities = result;
+    }
+    
     public async Task<Activity?> GetActivityById(string id)
     {
         var result = await _httpClient.GetAsync($"api/Activity/{id}");
